@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attandance</title>
+<style>
+    #attendance {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    #attendance td, #attendance th {
+      border: 1px solid #ddd;
+      padding: 5px;
+      text-align: center;
+    }
+
+    #attendance td:nth-child(4),
+    #attendance td:nth-child(5),
+    #attendance td:nth-child(6),
+    #attendance td:nth-child(7),
+    #attendance td:nth-child(8),
+    #attendance td:nth-child(9) {
+      background-color: #ddf6fd;
+    }
+    
+    #attendance tr:nth-child(even){background-color: #f2f2f2;}
+    
+    #attendance tr:hover {background-color: #ddd;}
+    
+    #attendance th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: center;
+      background-color: #04AA6D;
+      color: white;
+    }
+
+    #attendance th:nth-child(4),
+    #attendance th:nth-child(5),
+    #attendance th:nth-child(6),
+    #attendance th:nth-child(7),
+    #attendance th:nth-child(8),
+    #attendance th:nth-child(9) {
+      background-color: #0489aa;
+    }
+
+    #attendance th:nth-child(13) {
+      background-color: #aa0404;
+    }
+    #attendance th:nth-child(11) {
+      background-color: #c09340;
+    }
+    #attendance th:nth-child(10) {
+      background-color: #c0b51a;
+    }
+
+    center {
+      font-family: 'Helvetica';
+      background-color: #b0ffa6;
+      padding: 30px;
+    }
+    
+  .navbar {
+  overflow: hidden;
+  background-color: #333;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+  .navbar a {
+  float: right;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+.navbar a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+
+button {
+                    outline: none;
+                    cursor: pointer;
+                    font-weight: 500;
+                    border-radius: 3px;
+                    padding: 0 16px;
+                    border-radius: 4px;
+                    color: #fff;
+                    background: #6200ee;
+                    line-height: 1.15;
+                    font-size: 14px;
+                    height: 36px;
+                    word-spacing: 0px;
+                    letter-spacing: .0892857143em;
+                    text-decoration: none;
+                    text-transform: uppercase;
+                    min-width: 64px;
+                    border: none;
+                    text-align: center;
+                    box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+                    transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);                    
+}
+                    
+input {
+  
+  width: 100%;
+color: rgb(36, 35, 42);
+font-size: 15px;
+line-height: 10px;
+min-height: 10px;
+border-radius: 4px;
+padding: 5px 12px;
+border: 2px solid transparent;
+box-shadow: rgb(0 0 0 / 12%) 0px 1px 3px, rgb(0 0 0 / 24%) 0px 1px 2px;
+background: rgb(251, 251, 251);
+transition: all 0.1s ease 0s;         
+}        
+
+.main {
+  padding: 16px;
+  margin-bottom: 60px;
+}
+
+select {
+  font-family: 'Helvetica';
+  font-size : 15px;
+}
+
+</style>
+
+<script>
+  
+    function selected(el) {
+      var row = el.parentNode.parentNode;
+      var rIndex = row.rowIndex;
+
+      var rate = parseInt(document.getElementById("attendance").rows[rIndex].cells[2].getElementsByTagName("input")[0].value);
+
+        switch (el.value) {
+          case "Absent":
+            el.setAttribute("data-numeric-value", "0");
+            break;
+          case "Present":
+            el.setAttribute("data-numeric-value", rate);
+            break;
+          case "Half":
+            el.setAttribute("data-numeric-value", rate/2);
+            break;
+        }
+        update_weekly(rIndex);
+    }
+
+    function rate_change(el){
+
+      var row = el.parentNode.parentNode;
+      var rIndex = row.rowIndex;
+
+      for(var i=3;i<9;i++){
+        var select = document.getElementById("attendance").rows[rIndex].cells[i].getElementsByTagName("select")[0];
+        select.dispatchEvent(new Event("change"));
+      }  
+      total();
+    }
+
+    function update_weekly(rIndex){
+      var att_table = document.getElementById("attendance").rows[rIndex];
+
+      var weekly_sum = 0;
+
+        for(let i=3;i<9;i++){
+          var select_value = parseInt(att_table.cells[i].getElementsByTagName("select")[0].getAttribute("data-numeric-value"));
+          weekly_sum += select_value;
+        }
+
+        document.getElementById("attendance").rows[rIndex].cells[9].innerHTML=weekly_sum;
+        var select = document.getElementById("attendance").rows[rIndex].cells[10].getElementsByTagName("input")[0];
+        select.dispatchEvent(new Event("change"));
+        total();
+    }
+
+    function duplicateRow() {
+      // Get the table by its ID
+      var table = document.getElementById("attendance");
+      var rowCount = table.rows.length;
+
+     // Get the current row to be duplicated
+      var currentRow = table.rows[2];
+
+     // Create a new row by cloning the current row
+     var newRow = currentRow.cloneNode(true);
+
+    // Insert the new row after the current row
+     table.tBodies[0].appendChild(newRow);
+
+     document.getElementById("attendance").rows[rowCount].cells[0].innerHTML=rowCount-2;
+     document.getElementById("attendance").rows[rowCount].style.display = "table-row";
+    }
+
+    function deleteRow(btn) {
+
+    var row = btn.parentNode.parentNode;
+    var rIndex = row.rowIndex;
+    if(rIndex==1){
+      return 0;
+    }
+
+    // Get the parent row of the button
+    var row = btn.parentNode.parentNode;
+
+    // Get the table
+    var table = row.parentNode;
+
+    // Remove the row from the table
+    table.removeChild(row);
+    total();
+  }
+
+    function bato(el){
+      var row = el.parentNode.parentNode;
+      var rIndex = row.rowIndex;
+
+      var weekly = parseInt(document.getElementById("attendance").rows[rIndex].cells[9].innerHTML);
+      var sweldo = weekly - el.value;
+      document.getElementById("attendance").rows[rIndex].cells[11].innerHTML = sweldo;  
+      total();    
+    }
+
+    function total(){
+      var total=0;
+      var table = document.getElementById("attendance");
+      var rows = table.rows.length;
+
+      for(let i=1;i<rows;i++){
+        var value = parseInt(table.rows[i].cells[11].innerHTML);
+        if(value>0){total += value;}          
+    }
+
+    var totalElem = document.getElementById("total");
+    totalElem.innerHTML = total;
+
+    }
+
+  </script>
+</head>
+<body>
+  <div class="main">
+    <center>
+      <h1>PANDAY SWELDO CALCULATOR</h1>
+      <h3 style="margin-top: -20px"><b>Coded by Tyler Bert Baring</b></h3>
+      <p style="margin-top: -10px; margin-bottom: -10px">January 2023</p>
+    </center>
+    <table id="attendance">
+    <th>#</th>
+    <th>Name</th>
+    <th>Rate</th>
+    <th>MON</th>
+    <th>TUES</th>
+    <th>WED</th>
+    <th>THU</th>
+    <th>FRI</th>
+    <th>SAT</th>
+    <th>Weekly</th>
+    <th>Bato</th>
+    <th>Sweldo</th>
+    <th>Remove</th>
+    
+    <tr>
+        <td>1</td>
+        <td><input type="text" maxlength="15" style="width: 90px"></td>
+        <td><input type="number" value="400" name="points" step="50" min="0" max="1500" style="width: 50px" onchange="rate_change(this)"></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+        <td>0</td>
+        <td><input type="number" value="0" name="points" step="50" min="0" max="5000" style="width: 50px" onchange="bato(this)"></td>
+        <td>0</td>
+        <td><button onclick="deleteRow(this)">X</button></td>
+  </tr>
+  <tr style="display: none;">
+    <td>0</td>
+    <td><input type="text" maxlength="15" style="width: 90px"></td>
+    <td><input type="number" value="400" name="points" step="50" min="0" max="1500" style="width: 50px" onchange="rate_change(this)"></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+    <td>0</td>
+    <td><input type="number" value="0" name="points" step="50" min="0" max="5000" style="width: 50px" onchange="bato(this)"></td>
+    <td>0</td>
+    <td><button onclick="deleteRow(this)">X</button></td>
+</tr>
+<tr style="display: none;">
+  <td>0</td>
+  <td><input type="text" maxlength="15" style="width: 90px"></td>
+  <td><input type="number" value="400" name="points" step="50" min="0" max="1500" style="width: 50px" onchange="rate_change(this)"></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td><select onchange="selected(this)" data-numeric-value="0"><option>Absent</option><option>Present</option><option>Half</option></select></td>
+  <td>0</td>
+  <td><input type="number" value="0" name="points" step="50" min="0" max="5000" style="width: 50px" onchange="bato(this)"></td>
+  <td>0</td>
+  <td><button onclick="deleteRow(this)">X</button></td>
+</tr>
+    </table>
+    <br>
+    <button onclick="duplicateRow()"style="">Add Worker</button>
+    </body>
+  </div>
+
+<div class="navbar">
+  <a id="total" style="margin-right: 20px">0</a>
+  <a>Php</a> 
+  <a class="active">Total Sweldo-anan : </a> 
+</div>
+
+</body>
+</html>
+
+
